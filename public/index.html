@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Shell - CMD</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+        #output {
+            height: 300px;
+            overflow-y: auto;
+            background-color: #000;
+            color: #0f0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #0f0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Web Shell Terminal</h2>
+        <div class="mb-3">
+            <input type="text" id="command" class="form-control" placeholder="Masukkan perintah shell">
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-success" onclick="runCommand()">Jalankan</button>
+            <button class="btn btn-danger" onclick="clearOutput()">Clear Log</button>
+        </div>
+        <h4 class="mt-4">Output:</h4>
+        <pre id="output"></pre>
+    </div>
+
+    <script>
+        async function runCommand() {
+            const command = document.getElementById("command").value;
+            if (!command.trim()) return;
+
+            const response = await fetch("/run", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ command })
+            });
+            const result = await response.json();
+            document.getElementById("output").innerText += "> " + command + "\n" + result.output + "\n";
+            document.getElementById("command").value = "";  // Kosongkan input setelah perintah dijalankan
+        }
+
+        function clearOutput() {
+            document.getElementById("output").innerText = "";
+        }
+
+        // Menambahkan event listener untuk Enter
+        document.getElementById("command").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();  // Menghindari form submit
+                runCommand();  // Jalankan perintah saat Enter ditekan
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
